@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+  bind9-dns:
+    build: .
+    image: bind9-lab-cloud:latest
+    container_name: bind-container
+    ports:
+      - "${BIND_IP_WITH_DIVIDER}53:53/udp"
+      - "${BIND_IP_WITH_DIVIDER}53:53/tcp"
+    volumes:
+      - ./etc.bind:/etc/bind-dns
+    restart: unless-stopped
+    environment:
+      - DEBIAN_FRONTEND=noninteractive
+      - SVR_TYPE=${SERVER_TYPE}
