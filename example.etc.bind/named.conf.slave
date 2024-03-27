@@ -1,0 +1,5 @@
+# This is config file for slave DNS servers
+
+include "/etc/bind-dns/named.conf.options";
+include "/etc/bind-dns/named.conf.controls";
+include "/etc/bind-dns/named.conf.zones.slave";

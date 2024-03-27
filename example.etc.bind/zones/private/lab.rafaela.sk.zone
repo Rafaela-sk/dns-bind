@@ -1,0 +1,27 @@
+$ORIGIN lab.rafaela.sk.
+$TTL 3600
+@   IN SOA ns1.lab.rafaela.sk. hostmaster.rafaela.sk. (
+        2023100801
+        3600
+        1800
+        604800
+        3600 )
+    IN NS ns1.rafaela.sk.
+    IN NS ns2.rafaela.sk.
+;;ns1 IN A 10.0.40.28
+ns1 IN A XY.XY.XY.XY		;; Public IP address of nameserver #1
+ns2 IN A XZ.XZ.XZ.XZ		;; Public IP address of nameserver #2
+
+;; LB zones .lab.rafaela.sk - round robin
+balancer IN A 10.0.41.22
+balancer IN A 10.0.41.23
+
+;; A
+;; A VLAN40 .lab.rafaela.sk
+router IN A 10.0.40.1
+esxi01 IN A 10.0.40.10
+
+;; A VLAN41 .lab.rafaela.sk
+server03 IN A 10.0.41.13
+server05 IN A 10.0.41.16
+

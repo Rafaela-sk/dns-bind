@@ -1,0 +1,6 @@
+# This is config file for master DNS servers
+
+include "/etc/bind-dns/named.conf.options";
+include "/etc/bind-dns/named.conf.dyndns";
+include "/etc/bind-dns/named.conf.controls";
+include "/etc/bind-dns/named.conf.zones.master";

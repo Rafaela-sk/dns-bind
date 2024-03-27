@@ -1,0 +1,11 @@
+$ORIGIN 113.0.203.in-addr.arpa.
+$TTL 3600
+@   IN SOA ns1.lab.rafaela.sk. hostmaster.rafaela.sk. (
+        2023100301
+        3600
+        1800
+        604800
+        3600 )
+    IN NS ns1.lab.rafaela.sk.
+1   IN PTR ns1.lab.rafaela.sk.
+

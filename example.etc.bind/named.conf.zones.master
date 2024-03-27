@@ -1,0 +1,35 @@
+
+view "local" {
+    match-clients { localclients; };
+    allow-transfer { key private-zone-key; };
+    zone "lab.rafaela.sk" {
+        type master;
+        file "/etc/bind-dns/zones/private/lab.rafaela.sk.zone";
+    };
+    zone "40.0.10.in-addr.arpa" {
+        type master;
+        file "/etc/bind-dns/zones/private/40.0.10.in-addr.arpa.zone";
+    };
+    zone "41.0.10.in-addr.arpa" {
+        type master;
+        file "/etc/bind-dns/zones/private/41.0.10.in-addr.arpa.zone";
+    };
+};
+
+view "public" {
+    match-clients { publicclients; };
+    allow-transfer { key public-zone-key; };
+    zone "lab.rafaela.sk" {
+        type master;
+        file "/etc/bind-dns/zones/public/lab.rafaela.sk.zone";
+    };
+
+# sub 24 bit reverse DNS delegations are not coomon and workarounds are rather nasty, so we can most probably only setup static confiurations with our ISPs
+# workaroud example: https://flylib.com/books/en/2.684.1/delegating_reverse_mapping_for_networks_smaller_than_a_24.html
+#
+#    zone "XY.XY.XY.in-addr.arpa" {
+#        type master;
+#        file "/etc/bind-dns/zones/public/XY.XY.XY.in-addr.arpa.zone";
+#    };
+
+};

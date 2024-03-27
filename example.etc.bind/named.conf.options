@@ -1,0 +1,42 @@
+key private-zone-key {
+     algorithm HMAC-MD5;
+     secret XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX;		# Set your own key here
+};
+
+key public-zone-key {
+     algorithm HMAC-MD5;
+     secret XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX;		# Set your own key here
+};
+
+acl localclients {
+    !key public-zone-key;
+    key private-zone-key;
+    !XY.XY.XY.XY;	# GW of Connectivity Service Provider #1
+    !XZ.XZ.XZ.XZ;	# GW of Connectivity Service Provider #2
+    localhost;
+    localnets;
+    10.0.0.0/8;		# add all RFC 1918 subnets of your lab / office clients
+    172.16.0.0/12;
+    192.168.0.0/16;
+    XY.XY.XY.XY/XY;	# public subnet of Connectivity Service Provider #1
+    XZ.XZ.XZ.XZ/XZ;	# public subnet of Connectivity Service Provider #1
+};			# RFC 1918 subnets + ISP subnets
+
+acl publicclients {
+    !key private-zone-key;
+    key public-zone-key;
+    any;
+};
+
+options {
+    directory "/var/cache/bind";
+    listen-on { any; };
+    allow-recursion { localclients; };     # do not open recusion beyond trusted hosts
+    notify yes;
+    also-notify { 10.0.40.29; };           # added manually because lab networking does not permit notification to public IP address of slave DNS
+#    allow-transfer { none; };
+    allow-update { key "dynupdate";};      # enable only on master node
+    allow-update-forwarding { any; };	   # allow dyn dns updates through slave (secondary) server instances
+    dnssec-validation yes;                 # temporarily enabled for unsecure request forwarding to lab.local
+};
+
