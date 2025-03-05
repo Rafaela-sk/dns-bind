@@ -1,6 +1,6 @@
 # DNS Update Proxy
 
-This folder provides two solutions for distributing a single `nsupdate` request to multiple BIND DNS `view`s. These solutions ensure that DNS updates are correctly applied to multiple zones based on predefined configurations.
+This folder provides two solutions for distributing a single `nsupdate` request to multiple BIND DNS views. These solutions ensure that DNS updates are correctly applied to multiple zones based on predefined configurations.
 
 ## Solutions
 
