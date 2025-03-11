@@ -1,6 +1,6 @@
 # DNS Update Proxy
 
-This folder provides two solutions for distributing a single `nsupdate` request to multiple BIND DNS views. These solutions ensure that DNS updates are correctly applied to multiple zones based on predefined configurations.
+This repository provides two solutions for distributing a single `nsupdate` request to multiple BIND DNS `view`s. These solutions ensure that DNS updates are correctly applied to multiple zones based on predefined configurations.
 
 ## Solutions
 
@@ -91,6 +91,78 @@ This script will send `nsupdate` requests to both BIND views with the correspond
 
 ---
 
+## 3. Extending `dnsdist` with Lua for Dynamic IP Modifications
+
+`dnsdist` can also be extended using Lua scripts to modify responses dynamically based on client IP addresses. This is useful when you want to serve different IP addresses for the same hostname in different views.
+
+### Option 1: Using `dynBlockRulesGroup` with an External API
+`dnsdist` can call an external API (such as a Python Flask service) to dynamically determine the response.
+
+#### `dnsdist` Configuration Example:
+```lua
+myDynGroup = dynBlockRulesGroup()
+function remoteLuaHandler(dq)
+    local res = getHTTP("http://127.0.0.1:5000/dnsquery?name=" .. dq.qname:toString())
+    if res and res.status == 200 then
+        dq:addAnswer(pdns.A, res.body)
+        return true
+    end
+    return false
+end
+myDynGroup:setQueryHandler(remoteLuaHandler)
+addAction(RegexRule(".*"), myDynGroup)
+```
+
+#### Corresponding Python Flask API:
+```python
+from flask import Flask, request
+
+app = Flask(__name__)
+
+DNS_RESPONSES = {
+    "internal": "192.168.1.100",
+    "external": "203.0.113.100"
+}
+
+def get_view(client_ip):
+    if client_ip.startswith("192.168."):
+        return "internal"
+    return "external"
+
+@app.route('/dnsquery', methods=['GET'])
+def dns_query():
+    hostname = request.args.get("name", "")
+    client_ip = request.remote_addr
+    view = get_view(client_ip)
+    response_ip = DNS_RESPONSES.get(view, "0.0.0.0")
+    return response_ip
+
+if __name__ == '__main__':
+    app.run(host="0.0.0.0", port=5000)
+```
+
+### Option 2: Using Lua Directly in `dnsdist`
+This method modifies DNS responses directly in `dnsdist` based on the client's IP address.
+
+#### Example Lua Rule in `dnsdist`:
+```lua
+function modifyResponse(dq)
+    if dq.remoteaddr:match("^192%.168%.") then
+        dq:addAnswer(pdns.A, "192.168.1.100")
+    else
+        dq:addAnswer(pdns.A, "203.0.113.100")
+    end
+    return true
+end
+
+addLuaAction(AllRule(), LuaResponseAction(modifyResponse))
+```
+
+---
+
 ## Choosing the Best Approach
 - Use **dnsdist** if you need a proxy for general DNS query distribution.
 - Use the **Python script** if you need a direct solution for updating DNS records in multiple BIND views.
+- Use **dnsdist + Lua** or **dnsdist + an external API** if you want to dynamically modify DNS responses based on the client's IP address.
+
+Feel free to contribute and improve these implementations!
